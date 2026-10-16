@@ -2,7 +2,8 @@
 
 import { useEffect, useState, useCallback } from "react";
 import type { Session } from "@supabase/supabase-js";
-import { supabase } from "@/lib/supabase";
+import { supabase, isSupabaseConfigured } from "@/lib/supabase";
+
 
 interface LeaveRequest {
   id: string;
@@ -116,6 +117,14 @@ export default function HomePage() {
 
   useEffect(() => {
     let mounted = true;
+
+    if (!isSupabaseConfigured) {
+      setAuthInitializing(false);
+      setAuthError(
+        "Supabase 환경 변수가 설정되지 않았습니다. Vercel 프로젝트 설정(Settings > Environment Variables)에서 NEXT_PUBLIC_SUPABASE_URL과 NEXT_PUBLIC_SUPABASE_ANON_KEY를 추가해 주세요."
+      );
+      return;
+    }
 
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
       if (!mounted) return;
